@@ -82,10 +82,10 @@ president_group
 ggplot(president_group, aes(year, votes, fill = party)) + 
   geom_col(position = 'fill') + 
   scale_x_continuous(n.breaks =   12) +
+  scale_color_manual(values = c("#1B9E77", "#D95F02", "#7570B3", "#66A61E")) +
   labs(color = "Presidential Party", title = "1976-2020 Presidential Elections Proportions of Total Votes Per Party") + 
   xlab("Election Year") + 
   ylab("Proportion Out of All Votes") +
-  theme(legend.position = "bottom") +
   theme_linedraw()
 ```
 
