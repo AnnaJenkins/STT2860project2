@@ -4,25 +4,26 @@
 
 
 # view the names of the worksheets that are in streamingcontent.xlsx
-
-ERASE THIS AND ENTER THE PROPER CODE
+library(readxl)
+excel_sheets("~/Git_repositories/STT2860project2/dataraw/streamingcontent.xlsx")
 
 
 # read in the first sheet of streamingcontent.xlsx and name it dplus
 
-ERASE THIS AND ENTER THE PROPER CODE
+dplus <- read_excel("~/Git_repositories/STT2860project2/dataraw/streamingcontent.xlsx", sheet = "disneyplus")
 
 
 # read in the second sheet of streamingcontent.xlsx and name it strmtv
 
-ERASE THIS AND ENTER THE PROPER CODE
+strmtv <- read_excel("~/Git_repositories/STT2860project2/dataraw/streamingcontent.xlsx", sheet = "tvshows")
 
 
 # write the datasets to two .rds files named dplus.rds and strmtv.rds
 
-ERASE THIS AND ENTER THE PROPER CODE
+dplus_rds <- saveRDS(dplus, "~/Git_repositories/STT2860project2/dataprocessed/dplus.rds")
 
+strmtv_rds <- saveRDS(strmtv, "~/Git_repositories/STT2860project2/dataprocessed/strmtv.rds")
 
 # write the datasets to an .Rdata file called streamingcontent.Rdata
 
-ERASE THIS AND ENTER THE PROPER CODE
+save(dplus, strmtv, file = "~/Git_repositories/STT2860project2/dataprocessed/streamingcontent.Rdata")

@@ -1,0 +1,94 @@
+---
+title: "Presentation"
+author: "Anna Jenkins"
+date: "Last Edited `r format(Sys.time(), '%A, %B %d, %Y @ %I:%M %p')`"
+output:
+  html_document:
+    toc: true
+    theme: cosmo
+    highlight: textmate
+    code_folding: show
+---
+
+```{r globaloptions, include = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  comment = NA
+)
+```
+***
+
+## Setup
+
+### Packages Used
+
+```{r loadpackages}
+library(dplyr)
+library(ggplot2)
+library(readxl)
+```
+
+### Datasets Used
+
+```{r}
+Index <- read.csv("~/Git_repositories/STT2860project2/dataraw/billionaires_2021_10_31.csv", sep=",")
+excel_sheets("~/Git_repositories/STT2860project2/dataraw/MITpresident19762020.xlsx")
+president <- read_excel("~/Git_repositories/STT2860project2/dataraw/MITpresident19762020.xlsx", sheet = "1976-2020-president")
+glimpse(president)
+```
+
+# Billionaire's Dataset
+
+```{r}
+head(Index)
+```
+
+
+```{r}
+Index2 <- Index %>%
+  group_by(Industry) %>%
+  summarize(Change = sum(LastChange_Bil)) %>%
+  arrange(desc(Change))
+```
+
+```{r}
+ggplot(Index2, aes(Change, reorder(Industry, -Change))) +
+  geom_col(fill = "darkmagenta") +
+  xlab("Sum of Last Change in Net Worth for Billionaires In Each Industry (In Billions)") +
+  ylab("Industry") +
+  labs(title = "Comparing Changes in Net Worth For Billionaires In Each Industry")
+```
+
+The plot that I chose shows the total sum of latest net worth change that has occurred for billionaires in each industry, in billions. This plot shows that the 500 richest people belong to a total of about 16 different industries, and the group of billionaires with the largest most recent gain in money overall were those that work in technology. There also were only about 3 industries that had a substantial increase in total net worth in this change, while 8 industries had a significant decrease in total net worth. This may show which industries are currenlty doing well, or may be an insigificant change due to a single period of change.
+
+
+# 1976-2020 Presidential Elections Data Set
+
+```{r}
+president_group <- president %>%
+  group_by(party_simplified, year) %>%
+  summarize(votes = sum(candidatevotes)) %>%
+  arrange(year)
+president_group
+```
+
+```{r}
+ggplot(president_group, aes(year, votes, fill = party_simplified)) + 
+  geom_col(position = 'fill') + 
+  scale_x_continuous(n.breaks = 12) +
+  xlab("Election Year") + 
+  ylab("Proportion Out of All Votes") +
+  labs(title = "1976-2020 Presidential Elections Proportions of Total Votes Per Party", color = "Presidential Party") + 
+  theme(legend.position = "bottom")
+theme_linedraw()
+```
+
+For my second data set, I made a visualization showing the proportion of total votes that each presidential party received in each US election from 1976 to 2020. This shows that the vast majority of votes in each election have been for the Republican and Democrat parties, with each receiving a similar proportion of about 50% of votes in each election. The election varying the most from this trend was a the 1992 election, in which we can see that about 20% of votes were given to a candidate not in any of the
+three main parties, resulting in the Democrats receiving the smallest proportion of total votes and the Republicans receiving nearly the smallest proportion of total votes that they have received in any election in this span of years.
+
+***
+```{r}
+sessionInfo()
+```
+

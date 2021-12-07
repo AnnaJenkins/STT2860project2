@@ -1,6 +1,6 @@
 ---
 title: "Project 2A: Galton Data"
-author: "PUT YOUR NAME HERE"
+author: "Anna Jenkins"
 date: '`r format(Sys.time(), "%A, %B %d, %Y @ %I:%M %p")`'
 output: 
   html_document: 
@@ -23,17 +23,24 @@ knitr::opts_chunk$set(
 ### Packages Used
 
 ```{r loadpackages}
-
+library(tidyverse)
+library(knitr)
+library(DT)
+library(ggplot2)
 ```
 
 ### Datasets Used
 
 ```{r loaddatamain}
+data_main <- read_csv("https://raw.githubusercontent.com/STAT-JET-ASU/Datasets/master/Instructor/galtonfamiliesmain.csv")
 
+glimpse(data_main)
 ```
 
 ```{r loaddatasub}
+data_sub <- read_csv("https://raw.githubusercontent.com/STAT-JET-ASU/Datasets/master/Instructor/galtonfamiliessub.csv")
 
+glimpse(data_sub)
 ```
 
 ### Collaborators
@@ -69,7 +76,23 @@ Load the `galtonfamiliesmain.csv` and `galtonfamiliessub.csv` datasets above und
    * in order of height within each sex of child
 
 ```{r assembledata1}
+data <- data_sub %>%
+  mutate(
+    Father = FatherR + 60,
+    Mother = MotherR + 60,
+    Height = HeightR + 60,
+    FamilyID = as.character(FamilyID)) %>%
+  bind_rows(data_main) %>%
+   transmute(familyid = as.numeric(ifelse(FamilyID == "136A", 205, FamilyID)),
+             num_children = Children,
+             father_ht = Father,
+             mother_ht = (Mother *1.08),
+             midparent = (Father + mother_ht)/2,
+             child_sex = tolower(Child),
+             child_ht = ifelse(Child == "Daughter", Height * 1.08, Height )) %>%
+   arrange(familyid, desc(child_sex), desc(child_ht))
 
+datatable(data)
 ```
 
 #### Dataset #2
@@ -77,7 +100,13 @@ Load the `galtonfamiliesmain.csv` and `galtonfamiliessub.csv` datasets above und
 Select the variables `familyid` and `num_children` and reduce the dataset so that it contains only one row per family. Again, use `datatable()` from the DT package to display the result.
 
 ```{r assembledata2}
+data2 <- data %>%
+   group_by(familyid) %>%
+   summarize(
+      num_children = mean(num_children)
+   )
 
+datatable(data2)
 ```
 
 ### Part 1: Parent/Child Heights
@@ -107,15 +136,35 @@ Also include the following.
 * use `theme()` to move the legend to the bottom of the scatterplot
 
 ```{r updatedscatterplot1}
-
+plot <- ggplot(data, aes(child_ht, midparent, color = child_sex)) + 
+   geom_point(alpha = 0.2, size = 3.5) + 
+   scale_color_manual(values = c("#E69F00", "#56B4E9")) +
+   scale_x_continuous(n.breaks = 20) +
+   scale_y_continuous(n.breaks = 15) +
+   coord_fixed() +
+   labs(color = "gender of child", title = "Comparing Average Heights of Parents to Their Children", subtitle = "Female Heights are Multiplied by 1.08") +
+   xlab("Height of Child in Inches") + ylab("Midparents- Average of Parents' Heights in Inches")+
+   theme_linedraw() +
+   theme(legend.position = "bottom", axis.ticks.x = element_line(), axis.ticks.y = element_line())
+plot
 ```
 
 #### Updated Scatterplot #2
 
-Remove the color coding for sons versus daughters from your plot, as well as any other coding related to it. Instead, choose n single color for the points and adjust both `size` and transparency (`alpha`) as needed to correct for overplotting and help show the density of points. Reset the `aes` so child height is the `x` variable and midparent height is the `y` variable. Add a fitted *straight* line to the plot. Update your `labs` accordingly.
+Remove the color coding for sons versus daughters from your plot, as well as any other coding related to it. Instead, choose n single color for the points and adjust both `size` and transparency (`alpha`) as needed to correct for overplotting and help show the density of points. Reset the `aes` so child height is the `y` variable and midparent height is the `x` variable. Add a fitted *straight* line to the plot. Update your `labs` accordingly.
 
 ```{r updatedscatterplot2}
-
+plot2 <- ggplot(data, aes(midparent, child_ht)) + 
+   geom_point(alpha = 0.4, size = 1, color = "#7570B3")  +
+   scale_y_continuous(n.breaks = 20) +
+   scale_x_continuous(n.breaks = 15) + 
+   geom_smooth(method = "lm", se = FALSE, color = "#1B9E77") +
+   coord_fixed() +
+   labs(title = "Comparing Average Heights of Parents to Their Children", subtitle = "Female Heights are Multiplied by 1.08") +
+   ylab("Height of Child in Inches") + xlab("Midparents- Average of Parents' Heights in Inches")+
+   theme_linedraw() +
+   theme(legend.position = "bottom", axis.ticks.x = element_line(), axis.ticks.y = element_line())
+plot2
 ```
 
 ### Part 2: Number of Children
@@ -123,7 +172,14 @@ Remove the color coding for sons versus daughters from your plot, as well as any
 Create a barplot to show the distribution of the number of children per family. Set the bars to something other than the default `width`. Scale the x-axis so that there is a tick mark for each bar. Choose appropriate colors, labels, themes, and/or and other types of formatting that you feel will enhance the meaning or visual appearance of the plot.
 
 ```{r childrenbarplot}
-
+barplot <- ggplot(data, aes(num_children)) + geom_bar(fill = "#E69F00") + 
+   scale_x_continuous(n.breaks = 15) +
+   scale_y_continuous(n.breaks = 10) +
+   labs(title = "Distribution of the Number of Children Per Family") +
+   xlab("Number of Children Per Family") +
+   ylab("Number of Families") + 
+   theme_linedraw()
+barplot
 ```
 
 ## Questions
@@ -132,19 +188,24 @@ Create a barplot to show the distribution of the number of children per family. 
 
 **ANSWER**
 
-ERASE THIS TEXT AND ANSWER QUESTION HERE
+Yes, I think the scatterplots are an improvement over Galton's original diagram. Though the use of grouping the data based on location on the plot in the original data resulted in less overplotting, it was difficult to have a clear visualization of the data from this. The use of color-coding and increasing transparency within the new plots allowed for the information overall to be more clearly visible and readable for the typical person. Additional modifications that I would make to enhance the clarity of the plot would be to add the deviations in inches to the sides of the plot, as well as the horizontal and vertical lines through the origin that were in the original plot to mark where deviation is 0. I believe having these center lines helps to visualize which portion of the graph each point is in and their general relation between their x and y value.
 
 **Question 2:** Explain the rationale behind the choices you made when creating your scatterplots and barplot, such as size, color, transparency, or other features. What motivated your decisions? 
 
 **ANSWER**
 
-ERASE THIS TEXT AND ANSWER QUESTION HERE
+For the first scatterplot, 
+The colors for the first plot are two colors easily distinguishable from one another for those that are color blind. This allows for it be be clear for all viewers which colors represent sons and which represent daughters. I also decided to have decently large dot sizes for this plot in order for each point to be more distinguishable from the next, especially in terms of being able to see whether a point is in fact a son or daughter. I also had very low transparency for this plot to try to offset the overplotting caused by having larger points. The combination of these created a graph that shows each individual point while also being able to see the locations of higher density on the plot.
+
+For the second scatterplot, I decided to decrease the dot size in order to have less overlap in points, and allow each point to be more clearly visible. This felt more important now that color was no longer being used to distinguish between sons and daughters, so smaller points allows for them to be more separated. The points also now no longer need to be as distinguished between one another, as there is not a difference between each point (i.e. needing to see the color to determine if the child is a son or daughter). Thius means that we are now more focused on the general shape of the graph, which is more noticable when the points are smaller and contain less overlap. Having the midparents' heights on the x-axis and children's heights on the y-axis also  resulted in the graph being produced smaller, so having smaller points then became even more necessary as the points were now shown closer together. Having smaller, non-color coded points and a smaller graph overall is also why I decided to use a higher alpha level, resulting in less trnasparency of the points. Now that each point was smaller, overplotting was less of an issue, so it mad more sense for each point to be more visible. Having a smaller graph and smaller points also resulted in points that are less compact with one another being harder to see, so decreasing the transparency of these points allowed them to stay visible. The colors chosen for the points and for the line of best fit are also colors that are within a color palette that is easily distinguishable for those that are color blind.
+
+For the barplot, I decided to use the color "#E69F00" because it is a color-blind friendly color. Even though the color is not being compared to another, I still thought it would be in best practice to use a color that is still color-blind friendly, and is easily distinguishable from the background. I also decided to have a bar for each number of children per family, which allows for the information to be most easily interpreted. I also have tick marks at every 20 units on the y-axis, which is a number that allows enough lines throughout the graph to be able to easily read the height of each bar, while also not being overly crowding and having too many number listed on the y-axis.
 
 **Question 3:** Considering best practices, how does using `coord_fixed()` enhance the authenticity of the information shown in the scatterplots, such as the relationship and spread of the data?
 
 **ANSWER**
 
-ERASE THIS TEXT AND ANSWER QUESTION HERE
+`coor_fixed` increased the authenticity of the data by not overly showcasing the spread that occurred in mid-parents' height. Without `coord_fixed`, it appeared as if the children's heights were much more spread out and that the children's heights varied much more than the mid-parent's heights did. This also made it appear as though the general slope of the data was not as dramatic as it actually is, and that the parent's heights had less of a relationship with the children's heights than they actually do. We are now able to accurately interpret the differences between increase in midparent height compared to increases in children's height by the physical change in distance, not only the number of squares.
 
 ***
 ```{r}
