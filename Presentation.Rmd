@@ -27,6 +27,9 @@ knitr::opts_chunk$set(
 library(dplyr)
 library(ggplot2)
 library(readxl)
+library(tidyverse)
+library(knitr)
+library(DT)
 ```
 
 ### Datasets Used
@@ -55,6 +58,7 @@ Index2 <- Index %>%
 ```{r}
 ggplot(Index2, aes(Change, reorder(Industry, -Change))) +
   geom_col(fill = "darkmagenta") +
+ scale_x_continuous(n.breaks = 20) +
   xlab("Sum of Last Change in Net Worth for Billionaires In Each Industry (In Billions)") +
   ylab("Industry") +
   labs(title = "Comparing Changes in Net Worth For Billionaires In Each Industry")
@@ -67,25 +71,28 @@ The plot that I chose shows the total sum of latest net worth change that has oc
 
 ```{r}
 president_group <- president %>%
-  group_by(party_simplified, year) %>%
+  mutate(party = tolower(party_simplified)) %>%
+  group_by(party, year) %>%
   summarize(votes = sum(candidatevotes)) %>%
   arrange(year)
 president_group
 ```
 
 ```{r}
-ggplot(president_group, aes(year, votes, fill = party_simplified)) + 
+ggplot(president_group, aes(year, votes, fill = party)) + 
   geom_col(position = 'fill') + 
-  scale_x_continuous(n.breaks = 12) +
+  scale_x_continuous(n.breaks =   12) +
+  labs(color = "Presidential Party", title = "1976-2020 Presidential Elections Proportions of Total Votes Per Party") + 
   xlab("Election Year") + 
   ylab("Proportion Out of All Votes") +
-  labs(title = "1976-2020 Presidential Elections Proportions of Total Votes Per Party", color = "Presidential Party") + 
-  theme(legend.position = "bottom")
-theme_linedraw()
+  theme(legend.position = "bottom") +
+  theme_linedraw()
 ```
 
-For my second data set, I made a visualization showing the proportion of total votes that each presidential party received in each US election from 1976 to 2020. This shows that the vast majority of votes in each election have been for the Republican and Democrat parties, with each receiving a similar proportion of about 50% of votes in each election. The election varying the most from this trend was a the 1992 election, in which we can see that about 20% of votes were given to a candidate not in any of the
-three main parties, resulting in the Democrats receiving the smallest proportion of total votes and the Republicans receiving nearly the smallest proportion of total votes that they have received in any election in this span of years.
+For my second data set, I made a visualization showing the proportion of total votes that each presidential party received in each US election from 1976 to 2020. I chose this visualization because it is a common type of data and data set that is viewed and discussed, but often not in this format. This shows that the vast majority of votes in each election have been for the Republican and Democrat parties, with each receiving a similar proportion of about 50% of votes in each election. The election varying the most from this trend was a the 1992 election, in which we can see that about 20% of votes were given to a candidate not in any of the three main parties, resulting in the Democrats receiving the smallest proportion of total votes and the Republicans receiving nearly the smallest proportion of total votes that they have received in any election in this span of years.
+
+
+
 
 ***
 ```{r}

@@ -26,6 +26,9 @@ knitr::opts_chunk$set(
 library(dplyr)
 library(ggplot2)
 library(waffle)
+library(tidyverse)
+library(knitr)
+library(DT)
 ```
 
 ### Datasets Used
@@ -43,7 +46,7 @@ glimpse(strmtv_long)
 
 ### Collaborators
 
-ADD NAMES HERE OR WRITE "None"
+Tim Partridge
 
 <hr>
 

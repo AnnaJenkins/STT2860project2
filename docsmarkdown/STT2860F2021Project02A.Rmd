@@ -45,7 +45,7 @@ glimpse(data_sub)
 
 ### Collaborators
 
-ADD NAMES HERE OR WRITE "None"
+Tim Partridge
 
 <hr>
 
